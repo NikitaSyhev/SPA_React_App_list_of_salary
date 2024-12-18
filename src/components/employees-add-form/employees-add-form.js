@@ -9,6 +9,7 @@ class EmployeesAddForm extends Component {
             name:'',
             salary: '',
         }
+
     }
 
     onValueVhange=(e)=> {
@@ -19,6 +20,17 @@ class EmployeesAddForm extends Component {
         )
     }
 
+    onSubmit = (e) => {
+        e.preventDefault();
+        this.props.onAdd(this.state.name, this.state.salary);
+        this.setState({
+            name: '',
+            salary: '',
+        })
+    }
+
+   
+
 
     render(){
         const {name, salary} = this.state;
@@ -27,7 +39,8 @@ class EmployeesAddForm extends Component {
             <div className="app-add-form">
                 <h3>Добавить нового сотрудника: </h3>
                 <form 
-                className="add-form d-flex">
+                className="add-form d-flex"
+                onSubmit = {this.onSubmit}>
                 <input type="text" 
                     className="form-control new-post-label" 
                     placeholder="Как его зовут?"
@@ -36,12 +49,13 @@ class EmployeesAddForm extends Component {
                     value={name}
                     onChange={this.onValueVhange}/>
                 <input type="number" 
+                className="form-control new-post-label" 
                     placeholder="З.П. в рублях"
                     name="salary"
                     // атрибут value создаем управляемый компонент react
                     value={salary}
                     onChange={this.onValueVhange}/>
-                    className="form-control new-post-label" 
+               
                 <button className="btn btn-outline-light">Добавить</button>
                 </form>
             </div>
