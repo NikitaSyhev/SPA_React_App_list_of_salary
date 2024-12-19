@@ -13,15 +13,16 @@ class App extends Component {
         super();
         this.state = {
             data: [
-                {name: 'Nikita', salary: 250000, increase: true, id: 1},
-                {name: 'Ivan', salary: 200000, increase: false, id: 2},
-                {name: 'Oleg', salary: 150000, increase: true, id: 3},
+                {name: 'Nikita', salary: 250000, increase: true, rise: false,id: 1},
+                {name: 'Ivan', salary: 200000, increase: false, rise: false,id: 2},
+                {name: 'Oleg', salary: 150000, increase: true, rise: false,id: 3},
                 
             ]
         }
         this.maxId = 4;
     }
 
+    //удаление сотрудника
     deleteItem=(id)=>{
         this.setState(({data}) => {
             //алгоритм удаления элемента массива по индексу ( задача найти элемент массива, с ужным ID и удалить)
@@ -40,16 +41,19 @@ class App extends Component {
         })
     }
 
+    //добавление нового сотрудника
     addItem = (name,salary) => {
         const newItem = {
             name,
             salary,
             increase: false,
+            rise: false,
             id:this.maxId++,
         }
 
         this.setState(({data})=> {
 
+        //создание нового массива через спред оператор ( берем старый массив + добавляем элемент newItem)
         const newArr = [...data, newItem];
 
         return {
@@ -57,11 +61,45 @@ class App extends Component {
         }
     });
 }
- 
+    //меняет параметр Increse на противоположный / INCREASE - сотсояние
+    onToggleIncrease = (id) => {
+        this.setState(({data}) => {
+            const index = data.findIndex(elem => elem.id === id);
+
+            const old = data[index];
+            //создали новый объект
+            const newItem = {...old, increse: !old.increase};
+            //теперь моняем state
+            const newArr = [...data.slice(0,index), newItem, ...data.slice(index+1)];
+
+            return  {
+                data:  newArr
+            }
+
+        })
+    }
+
+    //меняет состояние сотрудника ( повышается или нет) на противоположное / RISE - состояние
+    onToggleRise = (id) => {
+        this.setState(({data}) => ({
+            data: data.map(item => {
+                if(item.id  === id) {
+                    return {...item, rise: !item.rise}
+                }
+                return item;
+            })
+        }))
+    }
+
+
     render() {
+        //посчитали количество сотрудников
+        const employees = this.state.data.length;
+        // посчитали количество сотрудников, которые получат премию
+        const increased = this.state.data.filter(item => item.increase.true).length;
         return (
             <div className='app'>
-                <AppInfo/>
+                <AppInfo employees={employees} increased = {increased}/>
     
                 <div className="search-panel">
                     <SearchPanel/>
@@ -70,7 +108,9 @@ class App extends Component {
                 
                 <EmployeesList 
                 data={this.state.data}
-                onDelete={this.deleteItem}/>
+                onDelete={this.deleteItem}
+                onToggleIncrease={this.onToggleIncrease}
+                onToggleRise={this.onToggleRise}/>
                 <EmployeesAddForm
                 onAdd={this.addItem}
                 />
