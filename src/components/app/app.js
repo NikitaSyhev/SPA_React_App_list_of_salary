@@ -10,17 +10,25 @@ import './app.css';
 class App extends Component {
 
     constructor(props) {
-        super();
+        super(props);
         this.state = {
             data: [
                 {name: 'Nikita', salary: 250000, increase: true, rise: false,id: 1},
                 {name: 'Ivan', salary: 200000, increase: false, rise: false,id: 2},
-                {name: 'Oleg', salary: 150000, increase: true, rise: false,id: 3},
-                
-            ]
+                {name: 'Oleg', salary: 80000, increase: true, rise: false,id: 3},
+            ],
+            //строчка, по которой осуществляется поиск
+            term: '',
+            //стейт для софильрации: зарплата выше и сотурдники на повышение
+            filter: 'all',
         }
         this.maxId = 4;
     }
+
+    // ВАЖНО!!
+    // методы действия пользователя начинаются с on (onToggleIncrease, onToggleRise, onUpdateSearch)
+    //статические функции, которые используются внутри метода без on..
+
 
     //удаление сотрудника
     deleteItem=(id)=>{
@@ -30,7 +38,7 @@ class App extends Component {
             
             const before = data.slice(0, index);
             const after = data.slice(index +1);
-            //из 2 массивов создаем один
+            //из 2 массивов создаем один - spread оператор
             const newArr = [...before,...after];
 
             return {
@@ -91,23 +99,65 @@ class App extends Component {
         }))
     }
 
+    //метод поиска сотруднкиа в списке
+    // items - исходный массив данных, term - строка для поиска
+    searchEmp = (items, term) => {
+        //если пользователь ничего не ввел - вохвращаем исходные данные
+        if(term.length === 0) {
+            return items;
+        }
+
+        return items.filter(item => {
+            return item.name.indexOf(term) > -1;
+        })
+
+    }
+
+    //метод для передачи стейта из search panel до app.js
+    onUpdateSearch = (term) => {
+        this.setState({
+            term,
+        });
+    }
+
+    //метод для фильтрации списка сотрудников при нажатиии кнопки
+    filterPost =(items, filter) => {
+        switch(filter){
+            case 'rise': 
+                return items.filter(item => item.rise);
+            case 'moreThen1000RUB':
+                return items.filter(item => item.salary > 100000); 
+            default:
+                return items;
+        }
+    }
+
+    //метод фильтрации при нажатии кнопок пользователем (передача стейта из app filter в app.js)
+    onFilterSelect =(filter) => {
+        this.setState({filter});
+    }
 
     render() {
+        //деструктурировали стейт
+        const {data, term, filter} = this.state;
         //посчитали количество сотрудников
         const employees = this.state.data.length;
         // посчитали количество сотрудников, которые получат премию
         const increased = this.state.data.filter(item => item.increase.true).length;
+        //отфильтрованные данные
+        const visibleData = this.filterPost(this.searchEmp(data, term), filter);
+
         return (
             <div className='app'>
                 <AppInfo employees={employees} increased = {increased}/>
     
                 <div className="search-panel">
-                    <SearchPanel/>
-                    <AppFilter/>
+                    <SearchPanel onUpdateSearch={this.onUpdateSearch}/>
+                    <AppFilter filter={filter} onFilterSelect={this.onFilterSelect}/>
                 </div>
                 
                 <EmployeesList 
-                data={this.state.data}
+                data={visibleData}
                 onDelete={this.deleteItem}
                 onToggleIncrease={this.onToggleIncrease}
                 onToggleRise={this.onToggleRise}/>
