@@ -9,9 +9,10 @@ const AppFilter = (props)=> {
         {name: 'moreThen1000RUB', label: 'От 100 тыс. рублей',},
     ];
 
-    // формируем массив элементов на базе buttonsData
+    // формируем массив элементов на базе buttonsData и его динамически вставим в верстку
     const buttons = buttonsData.map(({name, label}) => {
         const active = props.filter === name;
+        //назначение класса в зависимости от активности
         const clazz = active ? 'btn btn-light' : 'btn btn-outline-light';
         return (
             <button 
